@@ -4,8 +4,8 @@ import "./App.css";
 function Timer({ session, isTimerRunning, isReset }) {
   const [minutes, setMinutes] = useState(session);
   const [seconds, setSeconds] = useState(0);
-    
-  useEffect(() => {    
+
+  useEffect(() => {
     setMinutes(session);
     setSeconds(0);
   }, [isReset]);
@@ -16,7 +16,7 @@ function Timer({ session, isTimerRunning, isReset }) {
 
   useEffect(() => {
     if (minutes > 0 && isTimerRunning) {
-      if(minutes === session){
+      if (minutes === session) {
         // this will do the first time timer start
         setMinutes(session - 1);
       }
@@ -44,7 +44,8 @@ function Timer({ session, isTimerRunning, isReset }) {
 
   return (
     <div>
-      {minutes >= 10 ? minutes : `0${minutes}`} : {seconds >= 10 ? seconds : `0${seconds}`}
+      {minutes >= 10 ? minutes : `0${minutes}`} :{" "}
+      {seconds >= 10 ? seconds : `0${seconds}`}
     </div>
   );
 }
@@ -56,7 +57,7 @@ class Clock extends React.Component {
       break: 5,
       session: 25,
       isTimerRunning: false,
-      isReset:false,
+      isReset: false,
     };
 
     this.handleReset = this.handleReset.bind(this);
@@ -67,7 +68,7 @@ class Clock extends React.Component {
 
   handleTimerStartStop() {
     this.setState((prev) => ({
-      isTimerRunning: !prev.isTimerRunning
+      isTimerRunning: !prev.isTimerRunning,
     }));
   }
 
@@ -79,7 +80,7 @@ class Clock extends React.Component {
     });
 
     this.setState((prev) => ({
-      isReset: !prev.isReset
+      isReset: !prev.isReset,
     }));
   }
 

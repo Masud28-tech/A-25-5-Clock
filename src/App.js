@@ -1,13 +1,51 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
-function Timer({session}){
-  let minues = session;
-  useEffect({
+function Timer({ session, isTimerRunning, isReset }) {
+  const [minutes, setMinutes] = useState(session);
+  const [seconds, setSeconds] = useState(0);
     
-  },[]);
+  useEffect(() => {    
+    setMinutes(session);
+    setSeconds(0);
+  }, [isReset]);
+
+  useEffect(() => {
+    setMinutes(session);
+  }, [session]);
+
+  useEffect(() => {
+    if (minutes > 0 && isTimerRunning) {
+      if(minutes === session){
+        // this will do the first time timer start
+        setMinutes(session - 1);
+      }
+      const mintueTimerId = setTimeout(() => {
+        setMinutes(minutes - 1);
+      }, 60000);
+
+      return () => clearTimeout(mintueTimerId);
+    }
+  }, [minutes, isTimerRunning]);
+
+  useEffect(() => {
+    if (isTimerRunning) {
+      if (seconds > 0) {
+        const secondsTimerId = setTimeout(() => {
+          setSeconds(seconds - 1);
+        }, 1000);
+
+        return () => clearTimeout(secondsTimerId);
+      } else {
+        setSeconds(59);
+      }
+    }
+  }, [seconds, isTimerRunning]);
+
   return (
-    <div></div>
+    <div>
+      {minutes >= 10 ? minutes : `0${minutes}`} : {seconds >= 10 ? seconds : `0${seconds}`}
+    </div>
   );
 }
 class Clock extends React.Component {
@@ -17,29 +55,36 @@ class Clock extends React.Component {
     this.state = {
       break: 5,
       session: 25,
-      timer: {
-        minutes: 0,
-        seconds: 0,
-      },
+      isTimerRunning: false,
+      isReset:false,
     };
 
     this.handleReset = this.handleReset.bind(this);
     this.handleBreak = this.handleBreak.bind(this);
     this.handleSession = this.handleSession.bind(this);
+    this.handleTimerStartStop = this.handleTimerStartStop.bind(this);
+  }
+
+  handleTimerStartStop() {
+    this.setState((prev) => ({
+      isTimerRunning: !prev.isTimerRunning
+    }));
   }
 
   handleReset() {
     this.setState({
       break: 5,
       session: 25,
-      timer: {
-        minutes: 0,
-        seconds: 0,
-      },
+      isTimerRunning: false,
     });
+
+    this.setState((prev) => ({
+      isReset: !prev.isReset
+    }));
   }
 
   handleBreak(e, type) {
+    // eslint-disable-next-line
     switch (type) {
       case "decrement":
         this.setState((prev) => ({
@@ -55,6 +100,7 @@ class Clock extends React.Component {
   }
 
   handleSession(e, type) {
+    // eslint-disable-next-line
     switch (type) {
       case "decrement":
         this.setState((prev) => ({
@@ -79,10 +125,16 @@ class Clock extends React.Component {
         <div className="clock-container">
           <span id="timer-label">Session</span>
           <div id="time-left">
-            <Timer session={this.state.session} />
+            <Timer
+              session={this.state.session}
+              isTimerRunning={this.state.isTimerRunning}
+              isReset={this.state.isReset}
+            />
           </div>
 
-          <button id="start_stop">Start/Stop</button>
+          <button id="start_stop" onClick={this.handleTimerStartStop}>
+            Start/Stop
+          </button>
           <button id="reset" onClick={this.handleReset}>
             Reset
           </button>

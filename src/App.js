@@ -1,53 +1,19 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-function Timer({ session, isTimerRunning, isReset }) {
-  const [minutes, setMinutes] = useState(session);
+// https://codepen.io/rtsolka/pen/dxpwxp?editors=0010 : Pivot idea taken from this
+function Timer({ session, breakTime, isTimerRunning, isReset }) {
   const [seconds, setSeconds] = useState(0);
 
-  useEffect(() => {
-    setMinutes(session);
-    setSeconds(0);
-  }, [isReset]);
+  const formatTimer = (timeInSeconds) => {
+    let minutes = Math.floor(timeInSeconds / 60);
+    let seconds = timeInSeconds % 60;
+    minutes = minutes.toString().length === 1 ? "0" + minutes : minutes;
+    seconds = seconds.toString().length === 1 ? "0" + seconds : seconds;
+    return minutes + ":" + seconds;
+  };
 
-  useEffect(() => {
-    setMinutes(session);
-  }, [session]);
-
-  useEffect(() => {
-    if (minutes > 0 && isTimerRunning) {
-      if (minutes === session) {
-        // this will do the first time timer start
-        setMinutes(session - 1);
-      }
-      const mintueTimerId = setTimeout(() => {
-        setMinutes(minutes - 1);
-      }, 60000);
-
-      return () => clearTimeout(mintueTimerId);
-    }
-  }, [minutes, isTimerRunning]);
-
-  useEffect(() => {
-    if (isTimerRunning) {
-      if (seconds > 0) {
-        const secondsTimerId = setTimeout(() => {
-          setSeconds(seconds - 1);
-        }, 1000);
-
-        return () => clearTimeout(secondsTimerId);
-      } else {
-        setSeconds(59);
-      }
-    }
-  }, [seconds, isTimerRunning]);
-
-  return (
-    <div>
-      {minutes >= 10 ? minutes : `0${minutes}`} :{" "}
-      {seconds >= 10 ? seconds : `0${seconds}`}
-    </div>
-  );
+  return <div></div>;
 }
 class Clock extends React.Component {
   constructor(props) {
@@ -128,6 +94,7 @@ class Clock extends React.Component {
           <div id="time-left">
             <Timer
               session={this.state.session}
+              breakTime={this.state.break}
               isTimerRunning={this.state.isTimerRunning}
               isReset={this.state.isReset}
             />

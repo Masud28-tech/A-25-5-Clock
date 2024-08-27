@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
+// https://codepen.io/rtsolka/pen/dxpwxp?editors=0010 : Pivot idea taken from this
 function Timer({ session, breakTime, isTimerRunning, isReset }) {
   const [seconds, setSeconds] = useState(0);
-  // https://codepen.io/rtsolka/pen/dxpwxp?editors=0010 : Pivot idea taken from this 
 
-  return (
-    <div>
-    </div>
-  );
+  const formatTimer = (timeInSeconds) => {
+    let minutes = Math.floor(timeInSeconds / 60);
+    let seconds = timeInSeconds % 60;
+    minutes = minutes.toString().length === 1 ? "0" + minutes : minutes;
+    seconds = seconds.toString().length === 1 ? "0" + seconds : seconds;
+    return minutes + ":" + seconds;
+  };
+
+  return <div></div>;
 }
 class Clock extends React.Component {
   constructor(props) {

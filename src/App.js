@@ -4,6 +4,7 @@ import "./App.css";
 // https://codepen.io/rtsolka/pen/dxpwxp?editors=0010 : Pivot idea taken from this
 function Timer({ session, breakTime, isTimerRunning, isReset }) {
   const [seconds, setSeconds] = useState(0);
+  const [isSessionMode, setIsSessionMode] = useState(true);
 
   const formatTimer = (timeInSeconds) => {
     let minutes = Math.floor(timeInSeconds / 60);
@@ -13,7 +14,14 @@ function Timer({ session, breakTime, isTimerRunning, isReset }) {
     return minutes + ":" + seconds;
   };
 
-  return <div></div>;
+  return <div>
+    <div id="timer-label">
+      {isSessionMode ? "Session" : "Break"}
+    </div>
+    <div id="time-left">
+      {formatTimer(session * 60)}
+    </div>
+  </div>;
 }
 class Clock extends React.Component {
   constructor(props) {
@@ -90,15 +98,12 @@ class Clock extends React.Component {
         </div>
 
         <div className="clock-container">
-          <span id="timer-label">Session</span>
-          <div id="time-left">
             <Timer
               session={this.state.session}
               breakTime={this.state.break}
               isTimerRunning={this.state.isTimerRunning}
               isReset={this.state.isReset}
             />
-          </div>
 
           <button id="start_stop" onClick={this.handleTimerStartStop}>
             Start/Stop

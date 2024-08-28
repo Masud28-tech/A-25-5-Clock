@@ -15,10 +15,17 @@ function Timer({ session, breakTime, isTimerRunning, isReset }) {
   };
 
   useEffect(() => {
+    
     if (seconds === 0) {
-      setIsSessionMode((prevState) => !prevState);
-      if (isSessionMode) setSeconds(session * 60);
-      else setSeconds(breakTime * 60);
+      if(isSessionMode){
+        setIsSessionMode(false);
+        setSeconds(breakTime * 60);
+        document.getElementById("timer-label").innerText = "Break";
+      }else{
+        setIsSessionMode(true);
+        setSeconds(session * 60);
+        document.getElementById("timer-label").innerText = "Session";
+      }
     }
 
     if(isTimerRunning){
@@ -29,6 +36,14 @@ function Timer({ session, breakTime, isTimerRunning, isReset }) {
       return () => clearTimeout(timerId);
     }
   }, [isTimerRunning, seconds]);
+
+  useEffect(() => {
+    if(isSessionMode){
+      setSeconds(session * 60);
+    }else{
+      setSeconds(breakTime * 60);
+    }
+  },[session, breakTime]);
 
   useEffect(() => {
     setSeconds(session * 60);

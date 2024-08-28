@@ -3,7 +3,7 @@ import "./App.css";
 
 // https://codepen.io/rtsolka/pen/dxpwxp?editors=0010 : Pivot idea taken from this
 function Timer({ session, breakTime, isTimerRunning, isReset }) {
-  const [seconds, setSeconds] = useState(0);
+  const [seconds, setSeconds] = useState(session * 60);
   const [isSessionMode, setIsSessionMode] = useState(true);
 
   const formatTimer = (timeInSeconds) => {
@@ -14,14 +14,33 @@ function Timer({ session, breakTime, isTimerRunning, isReset }) {
     return minutes + ":" + seconds;
   };
 
-  return <div>
-    <div id="timer-label">
-      {isSessionMode ? "Session" : "Break"}
+  useEffect(() => {
+    if (seconds === 0) {
+      setIsSessionMode((prevState) => !prevState);
+      if (isSessionMode) setSeconds(session * 60);
+      else setSeconds(breakTime * 60);
+    }
+
+    if(isTimerRunning){
+      const timerId = setTimeout(() => {
+        setSeconds((prev) => prev - 1);
+      }, 1000);
+
+      return () => clearTimeout(timerId);
+    }
+  }, [isTimerRunning, seconds]);
+
+  useEffect(() => {
+    setSeconds(session * 60);
+    setIsSessionMode(true);
+  },[isReset]);
+
+  return (
+    <div>
+      <div id="timer-label">{isSessionMode ? "Session" : "Break"}</div>
+      <div id="time-left">{formatTimer(seconds)}</div>
     </div>
-    <div id="time-left">
-      {formatTimer(session * 60)}
-    </div>
-  </div>;
+  );
 }
 class Clock extends React.Component {
   constructor(props) {
@@ -98,12 +117,12 @@ class Clock extends React.Component {
         </div>
 
         <div className="clock-container">
-            <Timer
-              session={this.state.session}
-              breakTime={this.state.break}
-              isTimerRunning={this.state.isTimerRunning}
-              isReset={this.state.isReset}
-            />
+          <Timer
+            session={this.state.session}
+            breakTime={this.state.break}
+            isTimerRunning={this.state.isTimerRunning}
+            isReset={this.state.isReset}
+          />
 
           <button id="start_stop" onClick={this.handleTimerStartStop}>
             Start/Stop

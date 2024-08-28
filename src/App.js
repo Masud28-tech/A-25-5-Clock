@@ -14,21 +14,26 @@ function Timer({ session, breakTime, isTimerRunning, isReset }) {
     return minutes + ":" + seconds;
   };
 
+  const playBeepSound = () => {
+    const audioElement = document.getElementById("beep");
+    audioElement.play();
+  };
+
   useEffect(() => {
-    
     if (seconds === 0) {
-      if(isSessionMode){
+      playBeepSound();
+      if (isSessionMode) {
         setIsSessionMode(false);
         setSeconds(breakTime * 60);
         document.getElementById("timer-label").innerText = "Break";
-      }else{
+      } else {
         setIsSessionMode(true);
         setSeconds(session * 60);
         document.getElementById("timer-label").innerText = "Session";
       }
     }
 
-    if(isTimerRunning){
+    if (isTimerRunning) {
       const timerId = setTimeout(() => {
         setSeconds((prev) => prev - 1);
       }, 1000);
@@ -38,22 +43,28 @@ function Timer({ session, breakTime, isTimerRunning, isReset }) {
   }, [isTimerRunning, seconds]);
 
   useEffect(() => {
-    if(isSessionMode){
+    if (isSessionMode) {
       setSeconds(session * 60);
-    }else{
+    } else {
       setSeconds(breakTime * 60);
     }
-  },[session, breakTime]);
+  }, [session, breakTime]);
 
   useEffect(() => {
     setSeconds(session * 60);
     setIsSessionMode(true);
-  },[isReset]);
+  }, [isReset]);
 
   return (
     <div>
       <div id="timer-label">{isSessionMode ? "Session" : "Break"}</div>
       <div id="time-left">{formatTimer(seconds)}</div>
+      <div className="alarm">
+        <audio
+          id="beep"
+          src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+        ></audio>
+      </div>
     </div>
   );
 }
@@ -90,6 +101,11 @@ class Clock extends React.Component {
     this.setState((prev) => ({
       isReset: !prev.isReset,
     }));
+
+    // stop and rewind beep sound
+    const audioElement = document.getElementById("beep");
+    audioElement.pause();
+    audioElement.currentTime = 0;
   }
 
   handleBreak(e, type) {

@@ -12,6 +12,7 @@ function Timer({ session, breakTime, isTimerRunning, isReset }) {
     minutes = minutes.toString().length === 1 ? "0" + minutes : minutes;
     seconds = seconds.toString().length === 1 ? "0" + seconds : seconds;
     return minutes + ":" + seconds;
+    // return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const playBeepSound = () => {

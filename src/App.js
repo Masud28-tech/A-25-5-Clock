@@ -1,51 +1,71 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
-function Timer({ session, isTimerRunning, isReset }) {
-  const [minutes, setMinutes] = useState(session);
-  const [seconds, setSeconds] = useState(0);
+// https://codepen.io/rtsolka/pen/dxpwxp?editors=0010 : Pivot idea taken from this
+function Timer({ session, breakTime, isTimerRunning, isReset }) {
+  const [seconds, setSeconds] = useState(session * 60);
+  const [isSessionMode, setIsSessionMode] = useState(true);
+
+  const formatTimer = (timeInSeconds) => {
+    let minutes = Math.floor(timeInSeconds / 60);
+    let seconds = timeInSeconds % 60;
+    minutes = minutes.toString().length === 1 ? "0" + minutes : minutes;
+    seconds = seconds.toString().length === 1 ? "0" + seconds : seconds;
+    return minutes + ":" + seconds;
+    // return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  const playBeepSound = () => {
+    const audioElement = document.getElementById("beep");
+    audioElement.play();
+  };
 
   useEffect(() => {
-    setMinutes(session);
-    setSeconds(0);
-  }, [isReset]);
-
-  useEffect(() => {
-    setMinutes(session);
-  }, [session]);
-
-  useEffect(() => {
-    if (minutes > 0 && isTimerRunning) {
-      if (minutes === session) {
-        // this will do the first time timer start
-        setMinutes(session - 1);
-      }
-      const mintueTimerId = setTimeout(() => {
-        setMinutes(minutes - 1);
-      }, 60000);
-
-      return () => clearTimeout(mintueTimerId);
-    }
-  }, [minutes, isTimerRunning]);
-
-  useEffect(() => {
-    if (isTimerRunning) {
-      if (seconds > 0) {
-        const secondsTimerId = setTimeout(() => {
-          setSeconds(seconds - 1);
-        }, 1000);
-
-        return () => clearTimeout(secondsTimerId);
+    if (seconds === 0) {
+      playBeepSound();
+      if (isSessionMode) {
+        setIsSessionMode(false);
+        setSeconds(breakTime * 60);
+        document.getElementById("timer-label").innerText = "Break";
       } else {
-        setSeconds(59);
+        setIsSessionMode(true);
+        setSeconds(session * 60);
+        document.getElementById("timer-label").innerText = "Session";
       }
     }
-  }, [seconds, isTimerRunning]);
+
+    if (isTimerRunning) {
+      const timerId = setTimeout(() => {
+        setSeconds((prev) => prev - 1);
+      }, 1000);
+
+      return () => clearTimeout(timerId);
+    }
+  }, [isTimerRunning, seconds]);
+
+  useEffect(() => {
+    if (isSessionMode) {
+      setSeconds(session * 60);
+    } else {
+      setSeconds(breakTime * 60);
+    }
+  }, [session, breakTime]);
+
+  useEffect(() => {
+    setSeconds(session * 60);
+    setIsSessionMode(true);
+  }, [isReset]);
 
   return (
     <div>
-      {minutes >= 10 ? minutes : `0${minutes}`} :{" "}
-      {seconds >= 10 ? seconds : `0${seconds}`}
+      <div id="timer-label">{isSessionMode ? "Session" : "Break"}</div>
+      <div id="time-left">{formatTimer(seconds)}</div>
+      <div className="alarm">
+        <audio
+          id="beep"
+          src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+        ></audio>
+      </div>
     </div>
   );
 }
@@ -82,6 +102,11 @@ class Clock extends React.Component {
     this.setState((prev) => ({
       isReset: !prev.isReset,
     }));
+
+    // stop and rewind beep sound
+    const audioElement = document.getElementById("beep");
+    audioElement.pause();
+    audioElement.currentTime = 0;
   }
 
   handleBreak(e, type) {
@@ -124,14 +149,12 @@ class Clock extends React.Component {
         </div>
 
         <div className="clock-container">
-          <span id="timer-label">Session</span>
-          <div id="time-left">
-            <Timer
-              session={this.state.session}
-              isTimerRunning={this.state.isTimerRunning}
-              isReset={this.state.isReset}
-            />
-          </div>
+          <Timer
+            session={this.state.session}
+            breakTime={this.state.break}
+            isTimerRunning={this.state.isTimerRunning}
+            isReset={this.state.isReset}
+          />
 
           <button id="start_stop" onClick={this.handleTimerStartStop}>
             Start/Stop
